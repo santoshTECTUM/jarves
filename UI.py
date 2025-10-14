@@ -283,10 +283,10 @@ class MindReaderGUI(tk.Tk):
                                  font=("Segoe UI Black", 32), fg=NEON_CYAN, bg=NEON_BG)
         self.title_label.pack(pady=(18, 6))
 
-        self.panel = tk.Canvas(self, width=920, height=500, bg=NEON_BG, highlightthickness=0)
+        self.panel = tk.Canvas(self, width=920, height=600, bg=NEON_BG, highlightthickness=0)
         self.panel.pack()
         
-        rounded_rect(self.panel, 20, 20, 900, 500, r=28, fill=NEON_PANEL, outline=NEON_PURPLE, width=3)
+        rounded_rect(self.panel, 20, 20, 900, 550, r=28, fill=NEON_PANEL, outline=NEON_PURPLE, width=3)
 
         self.table_area = tk.Canvas(self.panel, width=840, height=330, bg=NEON_PANEL, highlightthickness=0)
         self.panel.create_window(60, 40, anchor="nw", window=self.table_area)
@@ -294,8 +294,8 @@ class MindReaderGUI(tk.Tk):
         self.input_var = tk.StringVar()
         self.entry = tk.Entry(self, textvariable=self.input_var,
                              font=("Segoe UI", 16), bd=0, fg="#111", justify="center")
-        rounded_rect(self.panel, 220, 380, 700, 430, r=18, fill="#1a1f35", outline=NEON_CYAN, width=3)
-        self.panel.create_window(460, 405, window=self.entry, width=430, height=34)
+        rounded_rect(self.panel, 230, 400, 700, 440, r=18, fill="#1a1f35", outline=NEON_CYAN, width=3)
+        self.panel.create_window(465, 420, window=self.entry, width=430, height=34)
 
         self.btn_continue = tk.Button(self, text="CONTINUE", command=self.on_continue,
                                          font=("Segoe UI Semibold", 16), fg=NEON_BUTTON_FG,
@@ -305,10 +305,10 @@ class MindReaderGUI(tk.Tk):
                                          font=("Segoe UI Semibold", 16), fg=NEON_BUTTON_FG,
                                          bg="#ff7b7b", activebackground="#b43030",
                                          bd=0, relief="flat", cursor="hand2")
-        rounded_rect(self.panel, 160, 445, 420, 485, r=20, fill="#163224", outline=NEON_GREEN, width=3)
-        rounded_rect(self.panel, 500, 445, 760, 485, r=20, fill="#3a1620", outline="#ff6b6b", width=3)
-        self.panel.create_window(290, 462, window=self.btn_continue, width=230, height=36)
-        self.panel.create_window(630, 462, window=self.btn_exit, width=230, height=36)
+        rounded_rect(self.panel, 160, 445, 420, 495, r=20, fill="#163224", outline=NEON_GREEN, width=3)
+        rounded_rect(self.panel, 500, 445, 760, 495, r=20, fill="#3a1620", outline="#ff6b6b", width=3)
+        self.panel.create_window(290, 470, window=self.btn_continue, width=230, height=36)
+        self.panel.create_window(630, 470, window=self.btn_exit, width=230, height=36)
         
         self._start_infinite_flicker(self.btn_continue, colors=[NEON_GREEN, NEON_CYAN, NEON_PINK, NEON_PURPLE], delay=180)
         self._start_infinite_flicker(self.btn_exit, colors=[NEON_PINK, "#ff7b7b", NEON_PURPLE, NEON_CYAN], delay=180)
@@ -360,8 +360,8 @@ class MindReaderGUI(tk.Tk):
                 y = 80 + r*40
                 self.table_area.create_text(x+60, y+18, text=ch, fill=NEON_LIME, font=("Consolas", 20, "bold"))
 
-        self.panel.create_text(460, 375, text="Enter your choice", fill="#bdeaff", font=("Segoe UI Semibold", 12))
-        self._show_col_buttons(["1","2","3","4","5"])
+        self.panel.create_text(460, 385, text="Enter your choice number", fill="#bdeaff", font=("Segoe UI Semibold", 12))
+        # self._show_col_buttons(["1","2","3","4","5"])
 
     def render_table2(self):
         self.table_area.delete("all")
@@ -374,7 +374,7 @@ class MindReaderGUI(tk.Tk):
 
         for c in range(maxc):
             x = 40 + c * 140
-            self._neon_tile(self.table_area, x, 0, 120, row_height, text=str(c + 1), color=NEON_PINK, big=True)
+            self._neon_tile(self.table_area, x, 0, 90, 60, text=str(c + 1), color=NEON_PINK, big=True)
 
         for r, row in enumerate(self.table2):
             for c, ch in enumerate(row):
@@ -383,7 +383,7 @@ class MindReaderGUI(tk.Tk):
                 self.table_area.create_text(
                     x + 60, y + row_height / 2, text=ch, fill=NEON_LIME, font=("Consolas", font_size, "bold")
                 )
-        self._show_col_buttons([str(i + 1) for i in range(maxc)])
+        # self._show_col_buttons([str(i + 1) for i in range(maxc)])
 
     def _neon_tile(self, canvas, x, y, w, h, text, color=NEON_CYAN, big=False):
         rounded_rect(canvas, x, y, x+w, y+h, r=14, fill="#151b2c", outline=color, width=3)
@@ -483,7 +483,7 @@ class MindReaderGUI(tk.Tk):
                 next_row_index = len(self.second_cols)
                 next_row_len = len(self.table2[next_row_index])
                 self.info.config(text=f"Letter {next_row_index + 1} of {self.word_len}: choose column 1..{next_row_len}.")
-                self._show_col_buttons([str(i+1) for i in range(next_row_len)])
+                # self._show_col_buttons([str(i+1) for i in range(next_row_len)])
                 return
 
         # Reveal
@@ -492,6 +492,9 @@ class MindReaderGUI(tk.Tk):
         self.audio.play_success()
         messagebox.showinfo("Mind Reader", f"✨ The name in your mind is: {word}")
         self.info.config(text="Thanks for playing! Press Exit to quit or type a new length to play again.")
+        # Hide footer buttons after result shown
+        self._show_col_buttons([])
+
         # reset
         self.word_len = 0
         self.first_cols.clear()
