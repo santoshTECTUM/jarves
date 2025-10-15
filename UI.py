@@ -210,23 +210,26 @@ class MindReaderGUI(tk.Tk):
         self.second_cols = []
         self.table2 = []
 
+        # TITLE AND STEP LABEL AT THE TOP
         self.title_label = tk.Label(self.game_frame, text="MIND READER",
                                     font=("Segoe UI Black", 32), fg=NEON_CYAN, bg=NEON_BG)
         self.title_label.pack(pady=(18, 6))
 
-        # Main game panel IN game_frame (keep as is)
+        self.step_var = tk.StringVar()
+        self.step_var.set("Step 1: Think of a name. Enter the number of letters.")
+        self.step_label = tk.Label(self.game_frame, textvariable=self.step_var,
+                                   font=("Segoe UI", 14), fg="#d8e1ff", bg=NEON_BG)
+        self.step_label.pack(pady=(4, 10))  # Right below title
+
         self.panel = tk.Canvas(self.game_frame, width=game_width-40, height=500, bg=NEON_BG, highlightthickness=0)
         self.panel.pack()
 
         rounded_rect(self.panel, 20, 20, game_width-60, 500, r=28, fill=NEON_PANEL, outline=NEON_PURPLE, width=3)
-        # self.table_area = tk.Canvas(self.panel, width=game_width-100, height=330, bg=NEON_PANEL, highlightthickness=0)
         self.table_area = tk.Canvas(self.panel, width=game_width-150, height=330, bg=NEON_PANEL, highlightthickness=0)
-
         self.panel.create_window(60, 40, anchor="nw", window=self.table_area)
 
         self.input_var = tk.StringVar()
-        self.entry = tk.Entry(self.panel, textvariable=self.input_var,  # now inside panel, not game_frame
-                              font=("Segoe UI", 16), bd=0, fg="#111", justify="center")
+        self.entry = tk.Entry(self.panel, textvariable=self.input_var, font=("Segoe UI", 16), bd=0, fg="#111", justify="center")
         rounded_rect(self.panel, 180, 400, 550, 440, r=18, fill="#1a1f35", outline=NEON_CYAN, width=3)
         self.panel.create_window(365, 420, window=self.entry, width=340, height=34)
 
@@ -246,12 +249,7 @@ class MindReaderGUI(tk.Tk):
         self._start_infinite_flicker(self.btn_continue, colors=[NEON_GREEN, NEON_CYAN, NEON_PINK, NEON_PURPLE], delay=180)
         self._start_infinite_flicker(self.btn_exit, colors=[NEON_PINK, "#ff7b7b", NEON_PURPLE, NEON_CYAN], delay=180)
 
-        # ---- The info label appears BELOW the panel, never in it ----
-        self.info = tk.Label(self.game_frame, text="Step 1: Think of a name. Enter the number of letters.",
-                             font=("Segoe UI", 14), fg="#d8e1ff", bg=NEON_BG)
-        self.info.pack(pady=(10, 10))
-
-        self.col_btn_frame = tk.Frame(self.panel, bg=NEON_BG)  # place inside panel so it doesn’t overlap below!
+        self.col_btn_frame = tk.Frame(self.panel, bg=NEON_BG)
         self.col_btns = []
 
         self.bind('<Return>', lambda event: self.on_continue())
@@ -260,7 +258,6 @@ class MindReaderGUI(tk.Tk):
         self.render_table1()
         self.entry.focus_set()
 
-        # --- Rules Panel Content ---
         self.rule_title = tk.Label(self.rule_frame, text="RULES", font=("Segoe UI Black", 21),
                                    fg=NEON_PINK, bg="#151b2c")
         self.rule_title.pack(pady=(20,10), padx=6, anchor="n")
@@ -312,7 +309,7 @@ class MindReaderGUI(tk.Tk):
                 y = 80 + r*40
                 self.table_area.create_text(x+20, y+18, text=ch, fill=NEON_LIME, font=("Consolas", 20, "bold"))
         self.panel.create_text(380, 385, text="Enter your choice number", fill="#bdeaff", font=("Segoe UI Semibold", 12))
-        self._show_col_buttons([])   # Hide buttons at start
+        self._show_col_buttons([])
 
     def render_table2(self):
         self.table_area.delete("all")
@@ -343,7 +340,6 @@ class MindReaderGUI(tk.Tk):
             self.col_btn_frame.place_forget()
             return
         self.col_btn_frame.place(x=800, y=604)
-        
         glow_colors = [NEON_CYAN, NEON_PINK, NEON_PURPLE, NEON_GREEN]
         delay_ms = 150 
         for lab in labels:
@@ -354,25 +350,30 @@ class MindReaderGUI(tk.Tk):
             self.col_btns.append(b)
             self._start_infinite_flicker(b, colors=glow_colors, delay=delay_ms)
             b.bind("<Enter>", lambda e, btn=b: btn.config(bg=NEON_PINK))
-            b.bind("<Leave>", lambda e, btn=b: btn.config(bg=NEON_CYAN))
+            b.bind("<Leave>", lambda e, btn=b: btn.config(bg=NEON_CYAN)
+
+        )
 
     def _fill_entry_and_continue(self, text):
         self.input_var.set(text)
         self.on_continue()
 
     def on_continue(self):
+        # Step 1: Number of letters
         if self.word_len == 0:
             raw = self.input_var.get().strip()
             if not raw.isdigit() or int(raw) <= 0:
                 self.audio.play_fail()
                 messagebox.showerror("Error", "Invalid number of letters.")
                 self.audio.play_random_suspense()
+                self.step_var.set("Step 1: Think of a name. Enter the number of letters.")
                 return
             self.word_len = int(raw)
             self.input_var.set("")
-            self.info.config(text="Step 2: For each letter, type or tap the column number (1–5).")
+            self.step_var.set("Step 2: For each letter, type or tap the column number (1–5).")
             return
 
+        # Step 2: Collect first round
         if len(self.first_cols) < self.word_len:
             v = self.input_var.get().strip()
             self.input_var.set("")
@@ -384,18 +385,19 @@ class MindReaderGUI(tk.Tk):
                 self.second_cols.clear()
                 self.table2 = []
                 self.render_table1()
-                self.info.config(text="Step 1: Think of a name. Enter the number of letters.")
+                self.step_var.set("Step 1: Think of a name. Enter the number of letters.")
                 self.audio.play_random_suspense()
                 return
             self.first_cols.append(v)
             if len(self.first_cols) < self.word_len:
-                self.info.config(text=f"Choose column for letter {len(self.first_cols)+1} of {self.word_len}.")
+                self.step_var.set(f"Step 2: Choose column for letter {len(self.first_cols)+1} of {self.word_len}.")
                 return
             self.table2 = self._build_table2_from_cols(self.first_cols)
             self.render_table2()
-            self.info.config(text="Final step: For each letter's column, choose the corresponding row's column again.")
+            self.step_var.set("Step 3: For each letter's row, choose the corresponding column again.")
             return
 
+        # Step 3: Second round
         if len(self.second_cols) < self.word_len:
             v = self.input_var.get().strip()
             self.input_var.set("")
@@ -409,6 +411,7 @@ class MindReaderGUI(tk.Tk):
                 self.table2 = []
                 self.render_table1()
                 self.audio.play_random_suspense()
+                self.step_var.set("Step 1: Think of a name. Enter the number of letters.")
                 return
             row_len = len(self.table2[current_row_index])
             if (not v.isdigit()) or not (1 <= int(v) <= row_len):
@@ -419,22 +422,23 @@ class MindReaderGUI(tk.Tk):
                 self.second_cols.clear()
                 self.table2 = []
                 self.render_table1()
-                self.info.config(text="Step 1: Think of a name. Enter the number of letters.")
                 self.audio.play_random_suspense()
+                self.step_var.set("Step 1: Think of a name. Enter the number of letters.")
                 return
             self.second_cols.append(int(v))
             if len(self.second_cols) < self.word_len:
                 next_row_index = len(self.second_cols)
                 next_row_len = len(self.table2[next_row_index])
-                self.info.config(text=f"Letter {next_row_index + 1} of {self.word_len}: choose column 1..{next_row_len}.")
+                self.step_var.set(f"Step 3: Letter {next_row_index + 1} of {self.word_len}: choose column 1..{next_row_len}.")
                 self._show_col_buttons([str(i+1) for i in range(next_row_len)])
                 return
 
+        # Step 4: Reveal
         letters = [self.table2[i][self.second_cols[i]-1] for i in range(self.word_len)]
         word = "".join(letters)
         self.audio.play_success()
         messagebox.showinfo("Mind Reader", f"✨ The name in your mind is: {word}")
-        self.info.config(text="Thanks for playing! Press Exit to quit or type a new length to play again.")
+        self.step_var.set("Game finished! Press Exit to quit or type a new length to play again.")
         self._show_col_buttons([])
         self.word_len = 0
         self.first_cols.clear()
@@ -459,7 +463,6 @@ class MindReaderGUI(tk.Tk):
         if self.snowfall_animation: self.snowfall_animation.stop_animation()
         super().destroy()
 
-# Main execution block
 print("Boot sequence start")
 start_boot_sequence()
 print("Loading game UI")
