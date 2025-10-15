@@ -219,14 +219,16 @@ class MindReaderGUI(tk.Tk):
         self.panel.pack()
 
         rounded_rect(self.panel, 20, 20, game_width-60, 500, r=28, fill=NEON_PANEL, outline=NEON_PURPLE, width=3)
-        self.table_area = tk.Canvas(self.panel, width=game_width-100, height=330, bg=NEON_PANEL, highlightthickness=0)
+        # self.table_area = tk.Canvas(self.panel, width=game_width-100, height=330, bg=NEON_PANEL, highlightthickness=0)
+        self.table_area = tk.Canvas(self.panel, width=game_width-150, height=330, bg=NEON_PANEL, highlightthickness=0)
+
         self.panel.create_window(60, 40, anchor="nw", window=self.table_area)
 
         self.input_var = tk.StringVar()
         self.entry = tk.Entry(self.panel, textvariable=self.input_var,  # now inside panel, not game_frame
                               font=("Segoe UI", 16), bd=0, fg="#111", justify="center")
         rounded_rect(self.panel, 180, 400, 550, 440, r=18, fill="#1a1f35", outline=NEON_CYAN, width=3)
-        self.panel.create_window(410, 420, window=self.entry, width=430, height=34)
+        self.panel.create_window(365, 420, window=self.entry, width=340, height=34)
 
         self.btn_continue = tk.Button(self.panel, text="CONTINUE", command=self.on_continue,
                                       font=("Segoe UI Semibold", 16), fg=NEON_BUTTON_FG,
@@ -306,7 +308,7 @@ class MindReaderGUI(tk.Tk):
         for r in range(6):
             for c in range(5):
                 ch = TABLE1[r][c] if TABLE1[r][c] else " "
-                x = 60 + c*100
+                x = 60 + c*120
                 y = 80 + r*40
                 self.table_area.create_text(x+20, y+18, text=ch, fill=NEON_LIME, font=("Consolas", 20, "bold"))
         self.panel.create_text(380, 385, text="Enter your choice number", fill="#bdeaff", font=("Segoe UI Semibold", 12))
